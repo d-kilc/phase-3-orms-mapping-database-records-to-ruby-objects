@@ -49,4 +49,29 @@ class Song
     song.save
   end
 
+  def self.new_from_db row
+    self.new id: row[0], name: row[1], album: row[2]
+  end
+
+  def self.all
+    sql = <<-SQL
+      select * from songs;
+    SQL
+
+    DB[:conn].execute(sql).map do |record|
+      Song.new_from_db record
+    end
+  end
+
+  def self.find_by_name name
+    sql = <<-SQL
+      select * from songs where name = ? limit 1;
+    SQL
+
+    DB[:conn].execute(sql, name).map do |row|
+      self.new_from_db row
+    end.first
+
+  end
+
 end
